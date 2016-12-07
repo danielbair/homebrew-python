@@ -1,15 +1,14 @@
 class Scipy < Formula
   desc "Software for mathematics, science, and engineering"
   homepage "http://www.scipy.org"
-  url "https://github.com/scipy/scipy/releases/download/v0.17.1/scipy-0.17.1.tar.gz"
-  sha256 "9c4cd2f8013cc4084230a0e858d7642963dbadfd76494d2fad3b0b29bebb38ac"
+  url "https://github.com/scipy/scipy/releases/download/v0.18.1/scipy-0.18.1.tar.xz"
+  sha256 "406d4e2dec5e46ad9f2ab08620174d064d3b5aab987591d1acd77eda846bd95e"
   head "https://github.com/scipy/scipy.git"
-  revision 1
 
   bottle do
-    sha256 "7a524e102649ccfc615d5be7f021e4c8bc5c7e673e7b098bec3685336ae1d332" => :el_capitan
-    sha256 "8f3e3c3c79aa5a0145fc78cdabc11c2ac37403e7fb99974237295830d6a1cfef" => :yosemite
-    sha256 "d8470f2bf519bf90e46e263999aac0f094dad7566768b9b7df2a687b4e49de87" => :mavericks
+    sha256 "4b434a8f8433bcbac8bc40902048d360dd3f6718002c6e349b589f1163da5cbb" => :sierra
+    sha256 "53564b2c4601a6d8992cba091a76830e3062871eb552d285f7883ae5b22567f7" => :el_capitan
+    sha256 "cab73e270ffb38a4ba93a45c5e196561d7ff0de79cc1cd00a49872241a78bb32" => :yosemite
   end
 
   option "without-python", "Build without python2 support"
@@ -19,6 +18,7 @@ class Scipy < Formula
   depends_on :python3 => :optional
   depends_on :fortran
 
+  option "with-check", "Run tests"
   option "with-openblas", "Use openblas instead of Apple's Accelerate framework " \
                           "(required to build with gcc on OS X)"
   depends_on "homebrew/science/openblas" => (OS.mac? ? :optional : :recommended)
@@ -75,7 +75,16 @@ class Scipy < Formula
       ENV.prepend_create_path "PYTHONPATH", lib/"python#{version}/site-packages"
       system python, "setup.py", "build", "--fcompiler=gnu95"
       system python, *Language::Python.setup_install_args(prefix)
+      if build.with?("check") || build.bottle?
+        cd ".." do
+          tmpdir = buildpath/"homebrew-scratch"
+          tmpdir.mkpath
+          ENV["TMPDIR"] = tmpdir
+          system python, "-c", "import scipy; assert scipy.test().wasSuccessful()"
+        end
+      end
     end
+
   end
 
   # cleanup leftover .pyc files from previous installs which can cause problems
@@ -101,8 +110,6 @@ class Scipy < Formula
   end
 
   test do
-    Language::Python.each_python(build) do |python, _version|
-      system python, "-c", "import scipy; assert scipy.test().wasSuccessful()"
-    end
+    system "python", "-c", "import scipy"
   end
 end

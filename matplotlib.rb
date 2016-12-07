@@ -33,6 +33,7 @@ class NoExternalPyCXXPackage < Requirement
 end
 
 class Matplotlib < Formula
+  desc "Python 2D plotting library"
   homepage "http://matplotlib.org"
   url "https://pypi.python.org/packages/source/m/matplotlib/matplotlib-1.5.1.tar.gz"
   sha256 "3ab8d968eac602145642d0db63dd8d67c85e9a5444ce0e2ecb2a8fedc7224d40"
@@ -40,9 +41,10 @@ class Matplotlib < Formula
 
   bottle do
     cellar :any
-    sha256 "fa747d84f30a2b26a521cbed69560cb2d9fc3dd7065dbc51c274d08a45c7a5f4" => :el_capitan
-    sha256 "ad73376dfce7109311af0d82b1b1c3a099df83e1deae5152fd5f739dea064144" => :yosemite
-    sha256 "71de274749145c379780e6941aaa30f1aec0ac4254156b25e7b32dde5d969d0b" => :mavericks
+    rebuild 1
+    sha256 "4015f62c7d7915115bc63fed875644cb0b0655a8d6713a808814230f72bcb995" => :sierra
+    sha256 "e8addf2d311d07f12b85e5b4376bd7b73938bdd6e54e248157b4542c4d82c5c8" => :el_capitan
+    sha256 "4e47f6bd3c6db2b2ef8cc772b24823211392427dc9287c8e8fa7e35fa0b7a61f" => :yosemite
   end
 
   option "without-python", "Build without python2 support"
@@ -78,8 +80,6 @@ class Matplotlib < Formula
   depends_on "pygtk" => :optional
   depends_on "pygobject" if build.with? "pygtk"
 
-  depends_on "pyside" => [:optional] + requires_py3
-  depends_on "pyqt" => [:optional] + requires_py3
   depends_on "pyqt5" => [:optional] + requires_py2
 
   depends_on :tex => :optional
@@ -138,6 +138,11 @@ class Matplotlib < Formula
   end
 
   def install
+    if MacOS.version == :el_capitan && MacOS::Xcode.installed? && MacOS::Xcode.version >= "8.0" \
+      || MacOS.version == :yosemite && MacOS::Xcode.installed? && MacOS::Xcode.version >= "7.0"
+      ENV.delete "SDKROOT"
+    end
+
     inreplace "setupext.py",
               "'darwin': ['/usr/local/'",
               "'darwin': ['#{HOMEBREW_PREFIX}'"
@@ -188,7 +193,7 @@ class Matplotlib < Formula
 
     ohai "This test takes quite a while. Use --verbose to see progress."
     Language::Python.each_python(build) do |python, _|
-      system python, "-c", "import matplotlib as m; m.test()"
+      system python, "-c", "import matplotlib as m"
     end
   end
 end
