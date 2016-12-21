@@ -3,10 +3,7 @@ class Aeneas < Formula
   homepage "http://www.readbeyond.it/aeneas/"
   url "https://github.com/readbeyond/aeneas/archive/v1.7.1.tar.gz"
   sha256 "b49d80c4059d66f2a8bed114757fd10efc1f1ecff563da96be67149b3e6af83c"
-  head "https://github.com/readbeyond/aeneas.git", :branch => "master"
-  devel do
-    url "https://github.com/readbeyond/aeneas.git", :branch => "devel"
-  end
+  head "https://github.com/readbeyond/aeneas.git"
 
   bottle do
     cellar :any
@@ -15,12 +12,12 @@ class Aeneas < Formula
     sha256 "6116f2c5fcf947ed4d6381f81af3e548f98cffa586faf1456fc2384084c39107" => :mavericks
   end
 
+  option "without-python", "Build without Python 2.7 support"
+
   depends_on "espeak" => :recommended
   depends_on "ffmpeg" => :recommended
   depends_on :python3 => :optional
   depends_on "homebrew/python/numpy"
-
-  option "without-python", "Build without Python 2.7 support"
 
   resource "beautifulsoup4" do
     url "https://pypi.python.org/packages/86/ea/8e9fbce5c8405b9614f1fd304f7109d9169a3516a493ce4f7f77c39435b7/beautifulsoup4-4.5.1.tar.gz"
